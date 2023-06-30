@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Draw a floating Kitty terminal window
+
+# Draw a rectangle using slop then read the geometry value
+read -r X Y W H < <(slop -f "%x %y %w %h" -b 4 -t 0 -q)
+
+# Depends on font width & height
+(( W /= 8 ))
+(( H /= 16 ))
+
+# Create a variable to be used for Kitty flag option
+g=${W}x${H}+${X}+${Y}
+
+# Create a temporary configuration file for Kitty
+config_file=$(mktemp)
+cat > "$config_file" << EOF
+allow_remote_control yes
+window_geometry $g
+EOF
+
+# Remove current Kitty rules
+bspc rule -r kitty
+
+# Draw with floating rule
+bspc rule -a kitty -o state=floating follow=on focus=on
+kitty --config "$config_file" &
+
+# Restore the rule
+bspc rule -a kitty desktop='^1' follow=on focus=on
+
+# Clean up the temporary configuration file
+rm "$config_file"
+

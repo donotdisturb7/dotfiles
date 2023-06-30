@@ -1,0 +1,12 @@
+[18:55:00 2023-06-26] FETCHING Version 2.20.2
+[18:55:00 2023-06-26] CREATING /home/donotdisturb/.spicetify
+[18:55:00 2023-06-26] DOWNLOADING https://github.com/spicetify/spicetify-cli/releases/download/v2.20.2/spicetify-2.20.2-linux-amd64.tar.gz
+[18:55:02 2023-06-26] EXTRACTING /home/donotdisturb/.spicetify/spicetify.tar.gz
+[18:55:02 2023-06-26] SETTING EXECUTABLE PERMISSIONS TO /home/donotdisturb/.spicetify/spicetify
+[18:55:02 2023-06-26] REMOVING /home/donotdisturb/.spicetify/spicetify.tar.gz
+[18:55:02 2023-06-26] APPENDING /home/donotdisturb/.spicetify to PATH in /home/donotdisturb/.bashrc
+[18:55:02 2023-06-26] Restart your shell to have spicetify in your PATH.
+[18:55:02 2023-06-26] APPENDING /home/donotdisturb/.spicetify to PATH in /home/donotdisturb/.bash_profile
+[18:55:02 2023-06-26] Restart your shell to have spicetify in your PATH.
+[18:55:02 2023-06-26] spicetify v2.20.2 was installed successfully to /home/donotdisturb/.spicetify
+[18:55:02 2023-06-26] Run 'spicetify --help' to get started
