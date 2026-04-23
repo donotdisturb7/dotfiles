@@ -32,7 +32,21 @@ set $menu fuzzel
 # ╰───────────────────────────────────────────────────────────────────────╯
 # Run: swaymsg -t get_outputs
 output * bg #1f2430 solid_color
-output DP-1 mode 2560x1440@240Hz
+
+workspace 1 output eDP-1
+workspace 2 output eDP-1
+workspace 3 output eDP-1
+workspace 4 output eDP-1
+workspace 5 output HDMI-A-1
+
+workspace 7 output HDMI-A-1
+workspace 8 output HDMI-A-1
+workspace 9 output HDMI-A-1
+workspace 10 output HDMI-A-1
+
+
+
+
 
 # ╭───────────────────────────────────────────────────────────────────────╮
 # │ INPUT & IDLE                                                          │
@@ -115,13 +129,13 @@ assign [app_id="mpv"] workspace number 4
 # Keep Discord/Vesktop on workspace 3 without stealing focus on notifications.
 # for_window [app_id="vesktop"] focus
 # for_window [class="Vesktop"] focus
-for_window [app_id="obsidian"] focus
-for_window [app_id="sh.cider.genten"] focus
+#for_window [app_id="obsidian"] focus
+#for_window [app_id="sh.cider.genten"] focus
 for_window [app_id="dev.zed.Zed"] focus
 for_window [class="Zed"] focus
 for_window [app_id="codium"] focus
 for_window [class="VSCodium"] focus
-for_window [app_id="org.telegram.desktop"] focus
+#for_window [app_id="org.telegram.desktop"] focus
 for_window [app_id="mpv"] focus
 
 # ─── Floating Windows ───
@@ -205,8 +219,8 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Yes' 'swaymsg exit'
 
 # ─── Monitor Toggle ───
-bindsym Ctrl+Shift+1 exec ~/Scripts/toggle-output eDP-1
-bindsym Ctrl+Shift+2 exec ~/Scripts/toggle-output HDMI-A-1
+#bindsym Ctrl+Shift+1 exec ~/Scripts/toggle-output eDP-1
+bindsym Ctrl+Shift+m exec ~/Scripts/toggle-output HDMI-A-1
 
 # ─── Hardware Keys ───
 bindsym --locked XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
