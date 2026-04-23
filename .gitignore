@@ -1,0 +1,10 @@
+# Fish shell local state
+.config/fish/fish_variables
+
+# Local/editor metadata
+.codex
+Scripts/.codex
+
+# Local binaries/downloads
+Scripts/yt-dlp
+

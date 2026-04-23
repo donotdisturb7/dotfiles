@@ -1,0 +1,9 @@
+\.git
+\.github
+\.gitignore
+\.stow-local-ignore
+README\.md
+LICENSE
+assets
+\.codex
+Scripts/\.codex
