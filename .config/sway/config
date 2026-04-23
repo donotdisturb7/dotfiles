@@ -23,7 +23,7 @@ set $left h
 set $down j
 set $up k
 set $right l
-set $term ghostty
+set $term kitty
 set $menu fuzzel
 
 
@@ -36,13 +36,15 @@ output * bg #1f2430 solid_color
 workspace 1 output eDP-1
 workspace 2 output eDP-1
 workspace 3 output eDP-1
-workspace 4 output eDP-1
-workspace 5 output HDMI-A-1
 
+workspace 4 output HDMI-A-1
+workspace 5 output HDMI-A-1
+workspace 6 output HDMI-A-1
 workspace 7 output HDMI-A-1
 workspace 8 output HDMI-A-1
 workspace 9 output HDMI-A-1
 workspace 10 output HDMI-A-1
+
 
 
 
@@ -247,8 +249,8 @@ bindsym $mod+F12 exec playerctl next
 bindsym $mod+$left focus left
 bindsym $mod+$down focus down
 bindsym $mod+$up focus up
-bindsym $mod+$right focus right
-bindsym $mod+Left focus left
+bindsym Alt+$right focus right
+bindsym Alt+$left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
