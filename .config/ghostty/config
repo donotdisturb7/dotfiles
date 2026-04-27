@@ -30,7 +30,6 @@ keybind = super+shift+enter=new_split:auto
 keybind = super+alt+m=toggle_split_zoom
 keybind = super+shift+q=close_surface
 keybind = ctrl+shift+comma=reload_config
-keybind = alt+enter=unbind
 
 # Scrolling
 scrollback-limit = 100000

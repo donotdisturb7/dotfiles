@@ -7,11 +7,9 @@
 # ╰───────────────────────────────────────────────────────────────────────╯
 exec kanshi
 exec_always kanshictl reload
+exec --no-startup-id autotiling
 exec waybar
 exec mako
-exec kdeconnect-indicator
-exec wl-clip-persist --clipboard regular
-exec wl-paste --watch cliphist store
 exec ~/Scripts/battery-monitor
 exec_always ~/Scripts/set-wallpaper random --quiet
 
@@ -33,6 +31,7 @@ set $menu fuzzel
 # Run: swaymsg -t get_outputs
 output * bg #1f2430 solid_color
 
+	output DP-1 mode 2560x1440@239.972Hz
 workspace 1 output eDP-1
 workspace 2 output eDP-1
 workspace 3 output eDP-1
@@ -53,12 +52,6 @@ workspace 10 output HDMI-A-1
 # ╭───────────────────────────────────────────────────────────────────────╮
 # │ INPUT & IDLE                                                          │
 # ╰───────────────────────────────────────────────────────────────────────╯
-input type:touchpad {
-    dwt enabled
-    tap enabled
-    natural_scroll enabled
-    middle_emulation enabled
-}
 
 input * {
     xkb_layout fr
@@ -83,13 +76,17 @@ input type:touchpad {
     click_method clickfinger
 }
 
+input type:pointer {
+	accel_profile flat
+	pointer_accel 0
+}
 # ╭───────────────────────────────────────────────────────────────────────╮
 # │ APPEARANCE & BEHAVIOR                                                 │
 # ╰───────────────────────────────────────────────────────────────────────╯
 # Border colors: black-metal theme
 client.focused #718096 #404552 #f7fafc #718096 #718096
 
-gaps inner 5
+gaps inner 1
 smart_gaps on
 default_border pixel 2
 default_floating_border pixel 2
