@@ -1,35 +1,69 @@
 #!/bin/bash
-# Toggle monitor on/off
+# Toggle an external monitor without hard-coding one machine's output name.
 
-OUTPUT="$1"
-STATE_FILE="/tmp/output-${OUTPUT}.state"
+set -u
 
-# Only check actual compositor processes
-if pgrep -x sway >/dev/null; then
-    COMP=sway
-elif pgrep -x niri >/dev/null; then
-    COMP=niri
-else
-    exit 1
+OUTPUT="${1:-}"
+
+notify() {
+	notify-send "$@" 2>/dev/null || true
+}
+
+active_sway_outputs() {
+	swaymsg -t get_outputs | jq -r '.[] | select(.active == true) | .name'
+}
+
+all_sway_outputs() {
+	swaymsg -t get_outputs | jq -r '.[].name'
+}
+
+pick_sway_external() {
+	local output
+
+	for output in HDMI-A-1 DP-1; do
+		if all_sway_outputs | grep -qx "$output"; then
+			printf '%s\n' "$output"
+			return 0
+		fi
+	done
+
+	all_sway_outputs | grep -Ev '^(eDP|LVDS|DSI)-' | head -n 1
+}
+
+if pgrep -x sway >/dev/null && command -v swaymsg >/dev/null; then
+	OUTPUT="${OUTPUT:-$(pick_sway_external)}"
+	[[ -z "$OUTPUT" ]] && notify "Monitor" "No external output found" && exit 1
+
+	active_count=$(active_sway_outputs | wc -l)
+	if active_sway_outputs | grep -qx "$OUTPUT"; then
+		if [[ "$active_count" -le 1 ]]; then
+			notify "Monitor" "Refusing to disable only active output: $OUTPUT"
+			exit 1
+		fi
+		swaymsg output "$OUTPUT" disable
+		notify "Monitor disabled" "$OUTPUT"
+	else
+		swaymsg output "$OUTPUT" enable
+		notify "Monitor enabled" "$OUTPUT"
+	fi
+
+	exit 0
 fi
 
-# Check if currently off
-if [ -f "$STATE_FILE" ]; then
-    rm -f "$STATE_FILE"
-    state=on
-else
-    touch "$STATE_FILE"
-    state=off
+if pgrep -x niri >/dev/null && command -v niri >/dev/null; then
+	OUTPUT="${OUTPUT:-HDMI-A-1}"
+	STATE_FILE="/tmp/output-${OUTPUT}.state"
+
+	if [[ -f "$STATE_FILE" ]]; then
+		rm -f "$STATE_FILE"
+		niri msg output "$OUTPUT" on
+		notify "Monitor enabled" "$OUTPUT"
+	else
+		touch "$STATE_FILE"
+		niri msg output "$OUTPUT" off
+		notify "Monitor disabled" "$OUTPUT"
+	fi
+	exit 0
 fi
 
-# Apply based on compositor (different syntax!)
-case "$COMP" in
-    niri) niri msg output "$OUTPUT" "$state" ;;
-    sway) 
-        if [ "$state" = on ]; then
-            swaymsg output "$OUTPUT" enable
-        else
-            swaymsg output "$OUTPUT" disable
-        fi
-        ;;
-esac
+exit 1

@@ -7,40 +7,58 @@ pkill -0 slurp 2>/dev/null && exit 0
 
 # Detect compositor
 if pgrep -x niri >/dev/null; then
-    COMP=niri
+	COMP=niri
 elif pgrep -x sway >/dev/null; then
-    COMP=sway
+	COMP=sway
 else
-    exit 1
+	exit 1
 fi
 
 get_output() {
-    case "$COMP" in
-        niri) niri msg -j outputs | jq -r '.[] | select(.is_focused == true) | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"' ;;
-        sway) swaymsg -t get_outputs | jq -r '.[] | select(.focused == true) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"' ;;
-    esac
+	case "$COMP" in
+	niri) niri msg -j outputs | jq -r '.[] | select(.is_focused == true) | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"' ;;
+	sway) swaymsg -t get_outputs | jq -r '.[] | select(.focused == true) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"' ;;
+	esac
+}
+
+copy_screenshot() {
+	local geometry="$1"
+	local temp_file
+	local save_file="$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png"
+
+	temp_file=$(mktemp --suffix=.png)
+
+	grim -g "$geometry" "$temp_file"
+	wl-copy --type image/png < "$temp_file"
+	notify-send "Screenshot copied" "Use Satty if you want to edit or save it" 2>/dev/null || true
+
+	satty \
+		--filename "$temp_file" \
+		--output-filename "$save_file" \
+		--copy-command 'wl-copy --type image/png' \
+		--actions-on-enter save-to-clipboard \
+		--actions-on-escape exit
+
+	rm -f "$temp_file"
 }
 
 MODE="${1:-smart}"
 
 if [[ "$MODE" == fullscreen ]]; then
-    grim -g "$(get_output)" - | wl-copy
-    notify-send "Screenshot captured"
+	copy_screenshot "$(get_output)"
 else
-    selection="$(case "$COMP" in
-        niri) niri msg -j outputs | jq -r '.[] | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"'
-              niri msg -j windows | jq -r '.[] | select(.logical != null) | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"' ;;
-        sway) swaymsg -t get_outputs | jq -r '.[] | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"'
-              swaymsg -t get_tree | jq -r '.. | select(.type?) | select(.focused == true) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"' ;;
-    esac | slurp)"
+	selection="$(case "$COMP" in
+	niri)
+		niri msg -j outputs | jq -r '.[] | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"'
+		niri msg -j windows | jq -r '.[] | select(.logical != null) | "\(.logical.x),\(.logical.y) \(.logical.width)x\(.logical.height)"'
+		;;
+	sway)
+		swaymsg -t get_outputs | jq -r '.[] | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"'
+		swaymsg -t get_tree | jq -r '.. | select(.type?) | select(.focused == true) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"'
+		;;
+	esac | slurp)"
 
-    [[ -z "$selection" ]] && exit 0
+	[[ -z "$selection" ]] && exit 0
 
-    grim -g "$selection" - | satty \
-        --filename - \
-        --output-filename "$OUTPUT_DIR/screenshot-$(date +'%Y-%m-%d_%H-%M-%S').png" \
-        --early-exit \
-        --actions-on-enter save-to-clipboard \
-        --save-after-copy \
-        --copy-command 'wl-copy'
+	copy_screenshot "$selection"
 fi

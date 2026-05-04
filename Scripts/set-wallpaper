@@ -9,26 +9,50 @@ fi
 
 notify() {
 	[[ "$QUIET" == true ]] && return
-	notify-send "$@"
+	notify-send "$@" 2>/dev/null || true
+}
+
+set_wallpaper() {
+	local wallpaper="$1"
+
+	[[ -z "$wallpaper" ]] && exit 1
+	pkill swaybg 2>/dev/null
+	swaybg -i "$wallpaper" -m fill &
+	notify "Wallpaper" "$(basename "$wallpaper")"
+}
+
+choose_with_yazi() {
+	local chooser_file
+	chooser_file=$(mktemp)
+
+	yazi --chooser-file "$chooser_file" "$WALLPAPER_DIR"
+	wallpaper=$(head -n 1 "$chooser_file")
+	rm -f "$chooser_file"
+
+	[[ -z "$wallpaper" ]] && exit 0
+	set_wallpaper "$wallpaper"
 }
 
 case "${1:-}" in
 random)
 	[[ ! -d "$WALLPAPER_DIR" ]] && exit 0
 	wallpaper=$(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.jpeg" -o -iname "*.webp" \) | shuf -n 1)
-	[[ -z "$wallpaper" ]] && exit 1
-	pkill swaybg 2>/dev/null
-	swaybg -i "$wallpaper" -m fill &
-	notify "Wallpaper" "$(basename "$wallpaper")"
+	set_wallpaper "$wallpaper"
 	;;
 choose)
 	[[ ! -d "$WALLPAPER_DIR" ]] && exit 0
+	if command -v yazi >/dev/null && command -v kitty >/dev/null && [[ ! -t 0 ]]; then
+		kitty -e "$0" choose-yazi
+		exit 0
+	fi
+
 	selection=$(find "$WALLPAPER_DIR" -type f \( -iname "*.jpg" -o -iname "*.png" -o -iname "*.jpeg" -o -iname "*.webp" \) -printf "%f\n" | sort | fuzzel --dmenu --prompt="Wallpaper: ")
 	[[ -z "$selection" ]] && exit 0
 	wallpaper=$(find "$WALLPAPER_DIR" -name "$selection" -type f | head -1)
-	[[ -z "$wallpaper" ]] && exit 1
-	pkill swaybg 2>/dev/null
-	swaybg -i "$wallpaper" -m fill &
-	notify "Wallpaper" "$selection"
+	set_wallpaper "$wallpaper"
+	;;
+choose-yazi)
+	[[ ! -d "$WALLPAPER_DIR" ]] && exit 0
+	choose_with_yazi
 	;;
 esac
